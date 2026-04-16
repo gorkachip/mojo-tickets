@@ -1,8 +1,5 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
+.sidebar-v2-agency { background: #27241E !important; }
 body { font-family: 'DM Sans', sans-serif !important; }
-.nav-link.active { background-color: #49615B !important; }
-.btn-primary { background-color: #27241E !important; border-color: #27241E !important; }
-.btn-primary:hover { background-color: #3E3723 !important; }
-a.text-primary { color: #49615B !important; }
 </style>

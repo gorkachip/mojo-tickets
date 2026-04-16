@@ -1,0 +1,1 @@
+document.fonts.check("12px Lacquer")
