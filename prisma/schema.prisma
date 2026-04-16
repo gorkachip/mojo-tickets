@@ -51,3 +51,13 @@ model Ticket {
 
   @@map("tickets")
 }
+
+model Upload {
+  id        String   @id @default(uuid())
+  filename  String
+  mimetype  String
+  data      Bytes
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("uploads")
+}
