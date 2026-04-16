@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  admin
+  sales
+}
+
+enum TicketCategory {
+  ai_response
+  app_bug
+  idea
+}
+
+enum TicketStatus {
+  pending
+  approved
+  implemented
+  rejected
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(sales)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("users")
+}
+
+model Ticket {
+  id               String         @id @default(uuid())
+  category         TicketCategory
+  status           TicketStatus   @default(pending)
+  name             String
+  email            String
+  description      String
+  expectedResponse String?        @map("expected_response")
+  leadContact      String?        @map("lead_contact")
+  screenshotUrl    String?        @map("screenshot_url")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+
+  @@map("tickets")
+}
