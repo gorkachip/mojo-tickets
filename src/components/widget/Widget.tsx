@@ -14,8 +14,13 @@ export function Widget() {
   const [category, setCategory] = useState<Category | null>(null);
 
   function toggle() {
-    setView((v) => (v === "closed" ? "menu" : "closed"));
+    const next = view === "closed" ? "menu" : "closed";
+    setView(next);
     setCategory(null);
+    // Notify parent iframe (GHL) to enable/disable pointer events
+    if (window.parent !== window) {
+      window.parent.postMessage(next === "closed" ? "mojo-widget-close" : "mojo-widget-open", "*");
+    }
   }
 
   function selectCategory(cat: Category) {
