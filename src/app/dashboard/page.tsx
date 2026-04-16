@@ -90,7 +90,7 @@ export default function DashboardPage() {
             <span className="text-sm text-[#BBAC9D]">Tickets</span>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-[#6F634F]">{session.user.name}</span>
+            <span className="text-sm text-[#6F634F]">{session.user.name.split(" ")[0]}</span>
             <button
               onClick={() => signOut()}
               className="rounded-lg p-2 text-[#BBAC9D] hover:bg-[#E5DAD0]/40 hover:text-[#27241E]"

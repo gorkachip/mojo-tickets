@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "MOJO Tickets",
+  "version": "1.0",
+  "description": "MOJO Tickets widget for GoHighLevel",
+  "content_scripts": [
+    {
+      "matches": ["https://app.gohighlevel.com/*", "https://*.gohighlevel.com/*", "https://*.highlevel.com/*"],
+      "js": ["inject.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
