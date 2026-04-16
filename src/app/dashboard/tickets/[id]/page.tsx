@@ -27,10 +27,10 @@ const categoryLabels: Record<string, string> = {
 };
 
 const statusColors: Record<string, string> = {
-  pending: "bg-yellow-100 text-yellow-800",
-  approved: "bg-blue-100 text-blue-800",
-  implemented: "bg-green-100 text-green-800",
-  rejected: "bg-red-100 text-red-800",
+  pending: "bg-[#BBAC9D]/30 text-[#6F634F]",
+  approved: "bg-[#49615B]/20 text-[#49615B]",
+  implemented: "bg-[#49615B]/40 text-[#27241E]",
+  rejected: "bg-red-100 text-red-700",
 };
 
 export default function TicketDetailPage() {
@@ -75,8 +75,8 @@ export default function TicketDetailPage() {
 
   if (authStatus === "loading" || loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <p className="text-gray-500">Loading...</p>
+      <div className="flex min-h-screen items-center justify-center bg-[#FCF9F6]">
+        <p className="text-[#BBAC9D]">Loading...</p>
       </div>
     );
   }
@@ -86,25 +86,28 @@ export default function TicketDetailPage() {
   const isAdmin = session.user.role === "admin";
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="border-b border-gray-200 bg-white">
+    <div className="min-h-screen bg-[#FCF9F6]">
+      <header className="border-b border-[#E5DAD0] bg-white">
         <div className="mx-auto flex max-w-4xl items-center gap-3 px-6 py-4">
           <button
             onClick={() => router.push("/dashboard")}
-            className="rounded-lg p-2 text-gray-400 hover:bg-gray-100"
+            className="rounded-lg p-2 text-[#BBAC9D] hover:bg-[#E5DAD0]/40"
           >
             <ArrowLeft className="h-4 w-4" />
           </button>
-          <h1 className="text-lg font-bold text-gray-900">Ticket Detail</h1>
+          <h1 className="font-[family-name:var(--font-lacquer)] text-lg text-[#27241E]">
+            MOJO
+          </h1>
+          <span className="text-sm text-[#BBAC9D]">Ticket Detail</span>
         </div>
       </header>
 
       <main className="mx-auto max-w-4xl px-6 py-8">
-        <div className="rounded-xl border border-gray-200 bg-white p-6">
+        <div className="rounded-xl border border-[#E5DAD0] bg-white p-6">
           <div className="mb-6 flex items-start justify-between">
             <div>
               <div className="mb-2 flex items-center gap-3">
-                <Badge variant="outline">
+                <Badge variant="outline" className="border-[#E5DAD0] text-[#6F634F]">
                   {categoryLabels[ticket.category] || ticket.category}
                 </Badge>
                 <span
@@ -113,9 +116,9 @@ export default function TicketDetailPage() {
                   {ticket.status}
                 </span>
               </div>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-[#BBAC9D]">
                 Submitted on {new Date(ticket.createdAt).toLocaleString()} by{" "}
-                <strong>{ticket.name}</strong> ({ticket.email})
+                <strong className="text-[#27241E]">{ticket.name}</strong> ({ticket.email})
               </p>
             </div>
 
@@ -126,7 +129,7 @@ export default function TicketDetailPage() {
                     <button
                       onClick={() => updateStatus("approved")}
                       disabled={updating}
-                      className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                      className="flex items-center gap-1.5 rounded-lg bg-[#49615B] px-4 py-2 text-sm font-medium text-white hover:bg-[#49615B]/90 disabled:opacity-50"
                     >
                       <CheckCircle className="h-4 w-4" />
                       Approve
@@ -134,7 +137,7 @@ export default function TicketDetailPage() {
                     <button
                       onClick={() => updateStatus("rejected")}
                       disabled={updating}
-                      className="flex items-center gap-1.5 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+                      className="flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
                     >
                       <XCircle className="h-4 w-4" />
                       Reject
@@ -145,7 +148,7 @@ export default function TicketDetailPage() {
                   <button
                     onClick={() => updateStatus("implemented")}
                     disabled={updating}
-                    className="flex items-center gap-1.5 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
+                    className="flex items-center gap-1.5 rounded-lg bg-[#27241E] px-4 py-2 text-sm font-medium text-[#FCF9F6] hover:bg-[#3E3723] disabled:opacity-50"
                   >
                     <Rocket className="h-4 w-4" />
                     Mark Implemented
@@ -157,20 +160,20 @@ export default function TicketDetailPage() {
 
           <div className="space-y-6">
             <div>
-              <h3 className="mb-1 text-sm font-medium text-gray-500">
+              <h3 className="mb-1 text-sm font-medium text-[#BBAC9D]">
                 Description
               </h3>
-              <p className="whitespace-pre-wrap text-gray-800">
+              <p className="whitespace-pre-wrap text-[#27241E]">
                 {ticket.description}
               </p>
             </div>
 
             {ticket.expectedResponse && (
               <div>
-                <h3 className="mb-1 text-sm font-medium text-gray-500">
+                <h3 className="mb-1 text-sm font-medium text-[#BBAC9D]">
                   What the assistant should have said instead
                 </h3>
-                <p className="whitespace-pre-wrap text-gray-800">
+                <p className="whitespace-pre-wrap text-[#27241E]">
                   {ticket.expectedResponse}
                 </p>
               </div>
@@ -178,23 +181,23 @@ export default function TicketDetailPage() {
 
             {ticket.leadContact && (
               <div>
-                <h3 className="mb-1 text-sm font-medium text-gray-500">
+                <h3 className="mb-1 text-sm font-medium text-[#BBAC9D]">
                   Lead&apos;s contact details
                 </h3>
-                <p className="text-gray-800">{ticket.leadContact}</p>
+                <p className="text-[#27241E]">{ticket.leadContact}</p>
               </div>
             )}
 
             {ticket.screenshotUrl && (
               <div>
-                <h3 className="mb-2 flex items-center gap-1 text-sm font-medium text-gray-500">
+                <h3 className="mb-2 flex items-center gap-1 text-sm font-medium text-[#BBAC9D]">
                   <Image className="h-4 w-4" />
                   Screenshot
                 </h3>
                 <img
                   src={ticket.screenshotUrl}
                   alt="Screenshot"
-                  className="max-w-full rounded-lg border border-gray-200"
+                  className="max-w-full rounded-lg border border-[#E5DAD0]"
                 />
               </div>
             )}

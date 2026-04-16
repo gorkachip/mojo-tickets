@@ -84,17 +84,17 @@ export function TicketForm({
   }
 
   return (
-    <div className="fixed bottom-24 right-6 z-50 w-[360px] overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-2xl">
-      <div className="flex items-center gap-2 border-b border-gray-100 px-4 py-3">
+    <div className="fixed bottom-24 right-6 z-50 w-[360px] overflow-hidden rounded-2xl border border-[#E5DAD0] bg-[#FCF9F6] shadow-2xl">
+      <div className="flex items-center gap-2 border-b border-[#E5DAD0] px-4 py-3">
         <button
           onClick={onBack}
-          className="rounded-md p-1 text-gray-500 hover:bg-gray-100"
+          className="rounded-md p-1 text-[#BBAC9D] hover:bg-[#E5DAD0]/40"
         >
           <ArrowLeft className="h-4 w-4" />
         </button>
-        <div className="flex h-6 w-6 items-center justify-center rounded bg-[#1a1a2e]">
+        <div className="flex h-6 w-6 items-center justify-center rounded bg-[#27241E]">
           <svg
-            className="h-3.5 w-3.5 text-white"
+            className="h-3.5 w-3.5 text-[#FCF9F6]"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -106,11 +106,11 @@ export function TicketForm({
       </div>
 
       <form onSubmit={handleSubmit} className="max-h-[70vh] overflow-y-auto p-5">
-        <h3 className="mb-4 text-lg font-bold text-gray-900">
+        <h3 className="mb-4 text-lg font-bold text-[#27241E]">
           {categoryTitles[category]}
         </h3>
 
-        <label className="mb-1 block text-sm font-medium text-gray-700">
+        <label className="mb-1 block text-sm font-medium text-[#27241E]">
           Name<span className="text-red-500">*</span>
         </label>
         <input
@@ -118,10 +118,10 @@ export function TicketForm({
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          className="mb-4 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400"
+          className="mb-4 w-full rounded-lg border border-[#E5DAD0] bg-white px-3 py-2 text-sm text-[#27241E] outline-none focus:border-[#49615B] focus:ring-1 focus:ring-[#49615B]"
         />
 
-        <label className="mb-1 block text-sm font-medium text-gray-700">
+        <label className="mb-1 block text-sm font-medium text-[#27241E]">
           Email<span className="text-red-500">*</span>
         </label>
         <input
@@ -129,14 +129,14 @@ export function TicketForm({
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="mb-4 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400"
+          className="mb-4 w-full rounded-lg border border-[#E5DAD0] bg-white px-3 py-2 text-sm text-[#27241E] outline-none focus:border-[#49615B] focus:ring-1 focus:ring-[#49615B]"
         />
 
-        <label className="mb-1 block text-sm font-medium text-gray-700">
+        <label className="mb-1 block text-sm font-medium text-[#27241E]">
           Description<span className="text-red-500">*</span>
         </label>
-        <p className="mb-1 text-xs text-orange-500">{categoryDescriptions[category]}</p>
-        <p className="mb-2 text-xs text-orange-500">
+        <p className="mb-1 text-xs text-[#6F634F]">{categoryDescriptions[category]}</p>
+        <p className="mb-2 text-xs text-[#6F634F]">
           <strong>Upload Screenshot.</strong> Always be sure to capture the full screen to include all the relevant details.
         </p>
         <textarea
@@ -145,7 +145,7 @@ export function TicketForm({
           required
           rows={4}
           placeholder="Enter your request here ..."
-          className="mb-2 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400"
+          className="mb-2 w-full rounded-lg border border-[#E5DAD0] bg-white px-3 py-2 text-sm text-[#27241E] outline-none focus:border-[#49615B] focus:ring-1 focus:ring-[#49615B]"
         />
 
         <div className="mb-4">
@@ -159,7 +159,7 @@ export function TicketForm({
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
-            className="flex items-center gap-2 rounded-lg border border-dashed border-gray-300 px-3 py-2 text-sm text-gray-500 hover:border-gray-400 hover:text-gray-700"
+            className="flex items-center gap-2 rounded-lg border border-dashed border-[#BBAC9D] px-3 py-2 text-sm text-[#6F634F] hover:border-[#49615B] hover:text-[#27241E]"
           >
             <Upload className="h-4 w-4" />
             {screenshotFile ? screenshotFile.name : "Attach screenshot"}
@@ -168,27 +168,27 @@ export function TicketForm({
 
         {category === "ai_response" && (
           <>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label className="mb-1 block text-sm font-medium text-[#27241E]">
               What should the assistant have said instead?
             </label>
-            <p className="mb-2 text-xs text-orange-500">
+            <p className="mb-2 text-xs text-[#6F634F]">
               Write the version that sounds right for you - the way you&apos;d want Ari to speak on your behalf.
             </p>
             <input
               type="text"
               value={expectedResponse}
               onChange={(e) => setExpectedResponse(e.target.value)}
-              className="mb-4 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400"
+              className="mb-4 w-full rounded-lg border border-[#E5DAD0] bg-white px-3 py-2 text-sm text-[#27241E] outline-none focus:border-[#49615B] focus:ring-1 focus:ring-[#49615B]"
             />
           </>
         )}
 
         {(category === "ai_response" || category === "app_bug") && (
           <>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label className="mb-1 block text-sm font-medium text-[#27241E]">
               Lead&apos;s contact details<span className="text-red-500">*</span>
             </label>
-            <p className="mb-2 text-xs text-orange-500">
+            <p className="mb-2 text-xs text-[#6F634F]">
               Name and phone number or e-mail.
             </p>
             <input
@@ -196,7 +196,7 @@ export function TicketForm({
               value={leadContact}
               onChange={(e) => setLeadContact(e.target.value)}
               required
-              className="mb-4 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400"
+              className="mb-4 w-full rounded-lg border border-[#E5DAD0] bg-white px-3 py-2 text-sm text-[#27241E] outline-none focus:border-[#49615B] focus:ring-1 focus:ring-[#49615B]"
             />
           </>
         )}
@@ -208,7 +208,7 @@ export function TicketForm({
         <button
           type="submit"
           disabled={submitting}
-          className="w-full rounded-lg bg-[#1a1a2e] py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#2a2a4e] disabled:opacity-50"
+          className="w-full rounded-lg bg-[#27241E] py-2.5 text-sm font-medium text-[#FCF9F6] transition-colors hover:bg-[#3E3723] disabled:opacity-50"
         >
           {submitting ? (
             <Loader2 className="mx-auto h-4 w-4 animate-spin" />

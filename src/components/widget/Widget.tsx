@@ -44,10 +44,12 @@ export function Widget() {
       )}
 
       {view === "success" && (
-        <div className="fixed bottom-24 right-6 z-50 w-[360px] rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-2xl">
-          <CheckCircle className="mx-auto mb-3 h-12 w-12 text-green-500" />
-          <h3 className="text-lg font-bold text-gray-900">Ticket submitted!</h3>
-          <p className="mt-1 text-sm text-gray-500">
+        <div className="fixed bottom-24 right-6 z-50 w-[360px] rounded-2xl border border-[#E5DAD0] bg-[#FCF9F6] p-8 text-center shadow-2xl">
+          <CheckCircle className="mx-auto mb-3 h-12 w-12 text-[#49615B]" />
+          <h3 className="font-[family-name:var(--font-lacquer)] text-lg text-[#27241E]">
+            Ticket submitted!
+          </h3>
+          <p className="mt-1 text-sm text-[#6F634F]">
             We&apos;ll review it shortly. Thank you!
           </p>
         </div>

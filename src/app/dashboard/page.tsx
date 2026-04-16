@@ -32,10 +32,10 @@ const categoryLabels: Record<string, string> = {
 };
 
 const statusColors: Record<string, string> = {
-  pending: "bg-yellow-100 text-yellow-800",
-  approved: "bg-blue-100 text-blue-800",
-  implemented: "bg-green-100 text-green-800",
-  rejected: "bg-red-100 text-red-800",
+  pending: "bg-[#BBAC9D]/30 text-[#6F634F]",
+  approved: "bg-[#49615B]/20 text-[#49615B]",
+  implemented: "bg-[#49615B]/40 text-[#27241E]",
+  rejected: "bg-red-100 text-red-700",
 };
 
 export default function DashboardPage() {
@@ -65,8 +65,8 @@ export default function DashboardPage() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <p className="text-gray-500">Loading...</p>
+      <div className="flex min-h-screen items-center justify-center bg-[#FCF9F6]">
+        <p className="text-[#BBAC9D]">Loading...</p>
       </div>
     );
   }
@@ -80,28 +80,20 @@ export default function DashboardPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="border-b border-gray-200 bg-white">
+    <div className="min-h-screen bg-[#FCF9F6]">
+      <header className="border-b border-[#E5DAD0] bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#1a1a2e]">
-              <svg
-                className="h-4 w-4 text-white"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-              </svg>
-            </div>
-            <h1 className="text-lg font-bold text-gray-900">MOJO Tickets</h1>
+            <h1 className="font-[family-name:var(--font-lacquer)] text-xl text-[#27241E]">
+              MOJO
+            </h1>
+            <span className="text-sm text-[#BBAC9D]">Tickets</span>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-500">{session.user.name}</span>
+            <span className="text-sm text-[#6F634F]">{session.user.name}</span>
             <button
               onClick={() => signOut()}
-              className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+              className="rounded-lg p-2 text-[#BBAC9D] hover:bg-[#E5DAD0]/40 hover:text-[#27241E]"
             >
               <LogOut className="h-4 w-4" />
             </button>
@@ -111,15 +103,15 @@ export default function DashboardPage() {
 
       <main className="mx-auto max-w-6xl px-6 py-8">
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-gray-900">
+          <h2 className="text-xl font-bold text-[#27241E]">
             Tickets ({filtered.length})
           </h2>
           <div className="flex items-center gap-3">
-            <Filter className="h-4 w-4 text-gray-400" />
+            <Filter className="h-4 w-4 text-[#BBAC9D]" />
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
-              className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm outline-none"
+              className="rounded-lg border border-[#E5DAD0] bg-white px-3 py-1.5 text-sm text-[#27241E] outline-none"
             >
               <option value="all">All categories</option>
               <option value="ai_response">AI Response</option>
@@ -129,7 +121,7 @@ export default function DashboardPage() {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm outline-none"
+              className="rounded-lg border border-[#E5DAD0] bg-white px-3 py-1.5 text-sm text-[#27241E] outline-none"
             >
               <option value="all">All statuses</option>
               <option value="pending">Pending</option>
@@ -140,21 +132,21 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-white">
+        <div className="rounded-xl border border-[#E5DAD0] bg-white">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Category</TableHead>
-                <TableHead>Reporter</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Date</TableHead>
+              <TableRow className="border-[#E5DAD0]">
+                <TableHead className="text-[#BBAC9D]">Category</TableHead>
+                <TableHead className="text-[#BBAC9D]">Reporter</TableHead>
+                <TableHead className="text-[#BBAC9D]">Description</TableHead>
+                <TableHead className="text-[#BBAC9D]">Status</TableHead>
+                <TableHead className="text-[#BBAC9D]">Date</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="py-8 text-center text-gray-400">
+                  <TableCell colSpan={5} className="py-8 text-center text-[#BBAC9D]">
                     No tickets found
                   </TableCell>
                 </TableRow>
@@ -162,19 +154,19 @@ export default function DashboardPage() {
                 filtered.map((ticket) => (
                   <TableRow
                     key={ticket.id}
-                    className="cursor-pointer hover:bg-gray-50"
+                    className="cursor-pointer border-[#E5DAD0] hover:bg-[#FCF9F6]"
                     onClick={() => router.push(`/dashboard/tickets/${ticket.id}`)}
                   >
                     <TableCell>
-                      <Badge variant="outline">
+                      <Badge variant="outline" className="border-[#E5DAD0] text-[#6F634F]">
                         {categoryLabels[ticket.category] || ticket.category}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="text-sm font-medium">{ticket.name}</div>
-                      <div className="text-xs text-gray-400">{ticket.email}</div>
+                      <div className="text-sm font-medium text-[#27241E]">{ticket.name}</div>
+                      <div className="text-xs text-[#BBAC9D]">{ticket.email}</div>
                     </TableCell>
-                    <TableCell className="max-w-xs truncate text-sm text-gray-600">
+                    <TableCell className="max-w-xs truncate text-sm text-[#6F634F]">
                       {ticket.description}
                     </TableCell>
                     <TableCell>
@@ -184,7 +176,7 @@ export default function DashboardPage() {
                         {ticket.status}
                       </span>
                     </TableCell>
-                    <TableCell className="text-sm text-gray-400">
+                    <TableCell className="text-sm text-[#BBAC9D]">
                       {new Date(ticket.createdAt).toLocaleDateString()}
                     </TableCell>
                   </TableRow>

@@ -31,27 +31,18 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <div className="w-full max-w-sm rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+    <div className="flex min-h-screen items-center justify-center bg-[#FCF9F6]">
+      <div className="w-full max-w-sm rounded-2xl border border-[#E5DAD0] bg-white p-8 shadow-sm">
         <div className="mb-6 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-[#1a1a2e]">
-            <svg
-              className="h-6 w-6 text-white"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-            </svg>
-          </div>
-          <h1 className="text-xl font-bold text-gray-900">MOJO Tickets</h1>
-          <p className="text-sm text-gray-500">Sign in to your account</p>
+          <h1 className="font-[family-name:var(--font-lacquer)] text-2xl text-[#27241E]">
+            MOJO
+          </h1>
+          <p className="mt-1 text-sm text-[#6F634F]">Sign in to manage tickets</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label className="mb-1 block text-sm font-medium text-[#27241E]">
               Email
             </label>
             <input
@@ -59,12 +50,12 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400"
+              className="w-full rounded-lg border border-[#E5DAD0] px-3 py-2 text-sm text-[#27241E] outline-none focus:border-[#49615B] focus:ring-1 focus:ring-[#49615B]"
               placeholder="gorka@mojodevelopments.com"
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label className="mb-1 block text-sm font-medium text-[#27241E]">
               Password
             </label>
             <input
@@ -72,7 +63,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400"
+              className="w-full rounded-lg border border-[#E5DAD0] px-3 py-2 text-sm text-[#27241E] outline-none focus:border-[#49615B] focus:ring-1 focus:ring-[#49615B]"
             />
           </div>
 
@@ -81,7 +72,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-[#1a1a2e] py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#2a2a4e] disabled:opacity-50"
+            className="w-full rounded-lg bg-[#27241E] py-2.5 text-sm font-medium text-[#FCF9F6] transition-colors hover:bg-[#3E3723] disabled:opacity-50"
           >
             {loading ? "Signing in..." : "Sign in"}
           </button>
