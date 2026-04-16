@@ -1,1 +1,1 @@
-document.fonts.check("12px Lacquer")
+document.querySelectorAll('*').forEach(function(e){var r=e.getBoundingClientRect();if(r.left<200&&r.height>1&&r.height<20&&r.width>50&&r.width<200){var bg=getComputedStyle(e).backgroundColor;var bc=getComputedStyle(e).borderBottomColor;if((bg!=='rgba(0, 0, 0, 0)'&&bg!=='transparent'&&bg!=='rgb(252, 249, 246)')||(bc&&bc!=='rgba(0, 0, 0, 0)')){console.log(e.tagName+' | '+e.className.substring(0,50)+' | bg:'+bg+' | bc:'+bc+' | h:'+Math.round(r.height)+'| w:'+Math.round(r.width))}}})
