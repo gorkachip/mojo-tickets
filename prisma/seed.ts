@@ -28,7 +28,18 @@ async function main() {
     },
   });
 
-  console.log("Seeded admin users: Gorka & Jorge");
+  await prisma.user.upsert({
+    where: { username: "shane" },
+    update: { password },
+    create: {
+      name: "Shane",
+      username: "shane",
+      password,
+      role: "admin",
+    },
+  });
+
+  console.log("Seeded admin users: Gorka, Jorge & Shane");
 }
 
 main()
