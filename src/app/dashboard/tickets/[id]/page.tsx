@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
-import { ArrowLeft, CheckCircle, XCircle, Rocket, Image } from "lucide-react";
+import { ArrowLeft, CheckCircle, XCircle, Rocket, Image, RotateCcw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 type Ticket = {
@@ -46,6 +46,7 @@ const actionLabels: Record<string, string> = {
   approved: "Approve",
   rejected: "Reject",
   implemented: "Mark as Implemented",
+  pending: "Reopen ticket",
 };
 
 export default function TicketDetailPage() {
@@ -178,6 +179,16 @@ export default function TicketDetailPage() {
                     Mark Implemented
                   </button>
                 )}
+                {ticket.status !== "pending" && (
+                  <button
+                    onClick={() => openActionModal("pending")}
+                    disabled={updating}
+                    className="flex items-center gap-1.5 rounded-lg border border-[#E5DAD0] bg-white px-4 py-2 text-sm font-medium text-[#6F634F] hover:bg-[#FCF9F6] disabled:opacity-50"
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                    Reopen
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -300,15 +311,19 @@ export default function TicketDetailPage() {
               {actionLabels[actionModal]}
             </h3>
             <p className="mb-4 text-sm text-[#6F634F]">
-              Add an optional comment for the team.
+              {actionModal === "pending"
+                ? "This will clear the activity log and return the ticket to pending. Are you sure?"
+                : "Add an optional comment for the team."}
             </p>
-            <textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              rows={4}
-              placeholder="e.g. Approved but with these changes..."
-              className="mb-4 w-full rounded-lg border border-[#E5DAD0] px-3 py-2 text-sm text-[#27241E] outline-none focus:border-[#49615B] focus:ring-1 focus:ring-[#49615B]"
-            />
+            {actionModal !== "pending" && (
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                rows={4}
+                placeholder="e.g. Approved but with these changes..."
+                className="mb-4 w-full rounded-lg border border-[#E5DAD0] px-3 py-2 text-sm text-[#27241E] outline-none focus:border-[#49615B] focus:ring-1 focus:ring-[#49615B]"
+              />
+            )}
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setActionModal(null)}
@@ -325,6 +340,8 @@ export default function TicketDetailPage() {
                     ? "bg-red-600 hover:bg-red-700"
                     : actionModal === "implemented"
                     ? "bg-[#27241E] hover:bg-[#3E3723]"
+                    : actionModal === "pending"
+                    ? "bg-[#6F634F] hover:bg-[#27241E]"
                     : "bg-[#49615B] hover:bg-[#49615B]/90"
                 }`}
               >

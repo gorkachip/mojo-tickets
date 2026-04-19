@@ -56,6 +56,16 @@ export async function PATCH(
     data.rejectedBy = userName;
     data.rejectedComment = comment || null;
     data.rejectedAt = now;
+  } else if (status === "pending") {
+    data.approvedBy = null;
+    data.approvedComment = null;
+    data.approvedAt = null;
+    data.implementedBy = null;
+    data.implementedComment = null;
+    data.implementedAt = null;
+    data.rejectedBy = null;
+    data.rejectedComment = null;
+    data.rejectedAt = null;
   }
 
   const ticket = await prisma.ticket.update({
