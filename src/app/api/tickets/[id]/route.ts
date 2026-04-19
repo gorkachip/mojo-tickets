@@ -34,15 +34,33 @@ export async function PATCH(
 
   const { id } = await params;
   const body = await req.json();
-  const { status } = body;
+  const { status, comment } = body;
 
   if (!Object.values(TicketStatus).includes(status)) {
     return NextResponse.json({ error: "Invalid status" }, { status: 400 });
   }
 
+  const userName = session.user.name;
+  const now = new Date();
+  const data: Record<string, unknown> = { status };
+
+  if (status === "approved") {
+    data.approvedBy = userName;
+    data.approvedComment = comment || null;
+    data.approvedAt = now;
+  } else if (status === "implemented") {
+    data.implementedBy = userName;
+    data.implementedComment = comment || null;
+    data.implementedAt = now;
+  } else if (status === "rejected") {
+    data.rejectedBy = userName;
+    data.rejectedComment = comment || null;
+    data.rejectedAt = now;
+  }
+
   const ticket = await prisma.ticket.update({
     where: { id },
-    data: { status },
+    data,
   });
 
   return NextResponse.json(ticket);
