@@ -14,7 +14,10 @@ export async function GET(
   }
 
   const { id } = await params;
-  const ticket = await prisma.ticket.findUnique({ where: { id } });
+  const ticket = await prisma.ticket.findUnique({
+    where: { id },
+    include: { actions: { orderBy: { createdAt: "asc" } } },
+  });
 
   if (!ticket) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -41,36 +44,26 @@ export async function PATCH(
   }
 
   const userName = session.user.name;
-  const now = new Date();
-  const data: Record<string, unknown> = { status };
+  const actionType = status === "pending" ? "reopened" : status;
 
-  if (status === "approved") {
-    data.approvedBy = userName;
-    data.approvedComment = comment || null;
-    data.approvedAt = now;
-  } else if (status === "implemented") {
-    data.implementedBy = userName;
-    data.implementedComment = comment || null;
-    data.implementedAt = now;
-  } else if (status === "rejected") {
-    data.rejectedBy = userName;
-    data.rejectedComment = comment || null;
-    data.rejectedAt = now;
-  } else if (status === "pending") {
-    data.approvedBy = null;
-    data.approvedComment = null;
-    data.approvedAt = null;
-    data.implementedBy = null;
-    data.implementedComment = null;
-    data.implementedAt = null;
-    data.rejectedBy = null;
-    data.rejectedComment = null;
-    data.rejectedAt = null;
-  }
+  await prisma.$transaction([
+    prisma.ticket.update({
+      where: { id },
+      data: { status },
+    }),
+    prisma.ticketAction.create({
+      data: {
+        ticketId: id,
+        action: actionType,
+        userName,
+        comment: comment || null,
+      },
+    }),
+  ]);
 
-  const ticket = await prisma.ticket.update({
+  const ticket = await prisma.ticket.findUnique({
     where: { id },
-    data,
+    include: { actions: { orderBy: { createdAt: "asc" } } },
   });
 
   return NextResponse.json(ticket);

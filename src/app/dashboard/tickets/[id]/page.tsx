@@ -6,6 +6,14 @@ import { useRouter, useParams } from "next/navigation";
 import { ArrowLeft, CheckCircle, XCircle, Rocket, Image, RotateCcw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
+type TicketAction = {
+  id: string;
+  action: string;
+  userName: string;
+  comment: string | null;
+  createdAt: string;
+};
+
 type Ticket = {
   id: string;
   category: string;
@@ -16,17 +24,9 @@ type Ticket = {
   expectedResponse: string | null;
   leadContact: string | null;
   screenshotUrl: string | null;
-  approvedBy: string | null;
-  approvedComment: string | null;
-  approvedAt: string | null;
-  implementedBy: string | null;
-  implementedComment: string | null;
-  implementedAt: string | null;
-  rejectedBy: string | null;
-  rejectedComment: string | null;
-  rejectedAt: string | null;
   createdAt: string;
   updatedAt: string;
+  actions: TicketAction[];
 };
 
 const categoryLabels: Record<string, string> = {
@@ -48,6 +48,29 @@ const actionLabels: Record<string, string> = {
   implemented: "Mark as Implemented",
   pending: "Reopen ticket",
 };
+
+const actionVerb: Record<string, string> = {
+  approved: "Approved",
+  rejected: "Rejected",
+  implemented: "Implemented",
+  reopened: "Reopened",
+};
+
+const actionStyles: Record<string, { border: string; bg: string; iconColor: string }> = {
+  approved: { border: "border-[#E5DAD0]", bg: "bg-[#FCF9F6]", iconColor: "text-[#49615B]" },
+  rejected: { border: "border-red-200", bg: "bg-red-50", iconColor: "text-red-600" },
+  implemented: { border: "border-[#E5DAD0]", bg: "bg-[#FCF9F6]", iconColor: "text-[#27241E]" },
+  reopened: { border: "border-[#E5DAD0]", bg: "bg-[#FCF9F6]", iconColor: "text-[#6F634F]" },
+};
+
+function ActionIcon({ action }: { action: string }) {
+  const cls = actionStyles[action]?.iconColor || "text-[#6F634F]";
+  if (action === "approved") return <CheckCircle className={`h-4 w-4 ${cls}`} />;
+  if (action === "rejected") return <XCircle className={`h-4 w-4 ${cls}`} />;
+  if (action === "implemented") return <Rocket className={`h-4 w-4 ${cls}`} />;
+  if (action === "reopened") return <RotateCcw className={`h-4 w-4 ${cls}`} />;
+  return null;
+}
 
 export default function TicketDetailPage() {
   const { data: session, status: authStatus } = useSession();
@@ -237,66 +260,36 @@ export default function TicketDetailPage() {
               </div>
             )}
 
-            {(ticket.approvedAt || ticket.rejectedAt || ticket.implementedAt) && (
+            {ticket.actions && ticket.actions.length > 0 && (
               <div className="border-t border-[#E5DAD0] pt-6">
                 <h3 className="mb-3 text-sm font-medium text-[#BBAC9D]">
                   Activity log
                 </h3>
                 <div className="space-y-3">
-                  {ticket.approvedAt && (
-                    <div className="rounded-lg border border-[#E5DAD0] bg-[#FCF9F6] p-3">
-                      <div className="flex items-center gap-2 text-sm">
-                        <CheckCircle className="h-4 w-4 text-[#49615B]" />
-                        <span className="font-medium text-[#27241E]">
-                          Approved by {ticket.approvedBy}
-                        </span>
-                        <span className="text-[#BBAC9D]">
-                          · {new Date(ticket.approvedAt).toLocaleString()}
-                        </span>
+                  {ticket.actions.map((a) => {
+                    const style = actionStyles[a.action] || actionStyles.reopened;
+                    return (
+                      <div
+                        key={a.id}
+                        className={`rounded-lg border ${style.border} ${style.bg} p-3`}
+                      >
+                        <div className="flex items-center gap-2 text-sm">
+                          <ActionIcon action={a.action} />
+                          <span className="font-medium text-[#27241E]">
+                            {actionVerb[a.action] || a.action} by {a.userName}
+                          </span>
+                          <span className="text-[#BBAC9D]">
+                            · {new Date(a.createdAt).toLocaleString()}
+                          </span>
+                        </div>
+                        {a.comment && (
+                          <p className="mt-2 whitespace-pre-wrap text-sm text-[#6F634F]">
+                            {a.comment}
+                          </p>
+                        )}
                       </div>
-                      {ticket.approvedComment && (
-                        <p className="mt-2 whitespace-pre-wrap text-sm text-[#6F634F]">
-                          {ticket.approvedComment}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                  {ticket.rejectedAt && (
-                    <div className="rounded-lg border border-red-200 bg-red-50 p-3">
-                      <div className="flex items-center gap-2 text-sm">
-                        <XCircle className="h-4 w-4 text-red-600" />
-                        <span className="font-medium text-[#27241E]">
-                          Rejected by {ticket.rejectedBy}
-                        </span>
-                        <span className="text-[#BBAC9D]">
-                          · {new Date(ticket.rejectedAt).toLocaleString()}
-                        </span>
-                      </div>
-                      {ticket.rejectedComment && (
-                        <p className="mt-2 whitespace-pre-wrap text-sm text-[#6F634F]">
-                          {ticket.rejectedComment}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                  {ticket.implementedAt && (
-                    <div className="rounded-lg border border-[#E5DAD0] bg-[#FCF9F6] p-3">
-                      <div className="flex items-center gap-2 text-sm">
-                        <Rocket className="h-4 w-4 text-[#27241E]" />
-                        <span className="font-medium text-[#27241E]">
-                          Implemented by {ticket.implementedBy}
-                        </span>
-                        <span className="text-[#BBAC9D]">
-                          · {new Date(ticket.implementedAt).toLocaleString()}
-                        </span>
-                      </div>
-                      {ticket.implementedComment && (
-                        <p className="mt-2 whitespace-pre-wrap text-sm text-[#6F634F]">
-                          {ticket.implementedComment}
-                        </p>
-                      )}
-                    </div>
-                  )}
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -311,19 +304,19 @@ export default function TicketDetailPage() {
               {actionLabels[actionModal]}
             </h3>
             <p className="mb-4 text-sm text-[#6F634F]">
-              {actionModal === "pending"
-                ? "This will clear the activity log and return the ticket to pending. Are you sure?"
-                : "Add an optional comment for the team."}
+              Add an optional comment for the team.
             </p>
-            {actionModal !== "pending" && (
-              <textarea
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                rows={4}
-                placeholder="e.g. Approved but with these changes..."
-                className="mb-4 w-full rounded-lg border border-[#E5DAD0] px-3 py-2 text-sm text-[#27241E] outline-none focus:border-[#49615B] focus:ring-1 focus:ring-[#49615B]"
-              />
-            )}
+            <textarea
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              rows={4}
+              placeholder={
+                actionModal === "pending"
+                  ? "e.g. Reopening to add more context..."
+                  : "e.g. Approved but with these changes..."
+              }
+              className="mb-4 w-full rounded-lg border border-[#E5DAD0] px-3 py-2 text-sm text-[#27241E] outline-none focus:border-[#49615B] focus:ring-1 focus:ring-[#49615B]"
+            />
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setActionModal(null)}

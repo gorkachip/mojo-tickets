@@ -37,28 +37,42 @@ model User {
 }
 
 model Ticket {
-  id                  String         @id @default(uuid())
+  id                  String          @id @default(uuid())
   category            TicketCategory
-  status              TicketStatus   @default(pending)
+  status              TicketStatus    @default(pending)
   name                String
   email               String
   description         String
-  expectedResponse    String?        @map("expected_response")
-  leadContact         String?        @map("lead_contact")
-  screenshotUrl       String?        @map("screenshot_url")
-  approvedBy          String?        @map("approved_by")
-  approvedComment     String?        @map("approved_comment")
-  approvedAt          DateTime?      @map("approved_at")
-  implementedBy       String?        @map("implemented_by")
-  implementedComment  String?        @map("implemented_comment")
-  implementedAt       DateTime?      @map("implemented_at")
-  rejectedBy          String?        @map("rejected_by")
-  rejectedComment     String?        @map("rejected_comment")
-  rejectedAt          DateTime?      @map("rejected_at")
-  createdAt           DateTime       @default(now()) @map("created_at")
-  updatedAt           DateTime       @updatedAt @map("updated_at")
+  expectedResponse    String?         @map("expected_response")
+  leadContact         String?         @map("lead_contact")
+  screenshotUrl       String?         @map("screenshot_url")
+  approvedBy          String?         @map("approved_by")
+  approvedComment     String?         @map("approved_comment")
+  approvedAt          DateTime?       @map("approved_at")
+  implementedBy       String?         @map("implemented_by")
+  implementedComment  String?         @map("implemented_comment")
+  implementedAt       DateTime?       @map("implemented_at")
+  rejectedBy          String?         @map("rejected_by")
+  rejectedComment     String?         @map("rejected_comment")
+  rejectedAt          DateTime?       @map("rejected_at")
+  createdAt           DateTime        @default(now()) @map("created_at")
+  updatedAt           DateTime        @updatedAt @map("updated_at")
+  actions             TicketAction[]
 
   @@map("tickets")
+}
+
+model TicketAction {
+  id        String   @id @default(uuid())
+  ticketId  String   @map("ticket_id")
+  action    String
+  userName  String   @map("user_name")
+  comment   String?
+  createdAt DateTime @default(now()) @map("created_at")
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId, createdAt])
+  @@map("ticket_actions")
 }
 
 model Upload {
