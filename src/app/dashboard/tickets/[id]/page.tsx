@@ -3,8 +3,18 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
-import { ArrowLeft, CheckCircle, XCircle, Rocket, Image, RotateCcw } from "lucide-react";
+import {
+  ArrowLeft,
+  CheckCircle,
+  XCircle,
+  Rocket,
+  Image,
+  RotateCcw,
+  MessageSquare,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { MentionText } from "@/components/MentionText";
+import { MentionTextarea } from "@/components/MentionTextarea";
 
 type TicketAction = {
   id: string;
@@ -29,6 +39,8 @@ type Ticket = {
   actions: TicketAction[];
 };
 
+type User = { username: string; name: string };
+
 const categoryLabels: Record<string, string> = {
   ai_response: "AI Response",
   app_bug: "App Bug",
@@ -47,6 +59,7 @@ const actionLabels: Record<string, string> = {
   rejected: "Reject",
   implemented: "Mark as Implemented",
   pending: "Reopen ticket",
+  commented: "Add comment",
 };
 
 const actionVerb: Record<string, string> = {
@@ -54,13 +67,38 @@ const actionVerb: Record<string, string> = {
   rejected: "Rejected",
   implemented: "Implemented",
   reopened: "Reopened",
+  commented: "Commented",
 };
 
-const actionStyles: Record<string, { border: string; bg: string; iconColor: string }> = {
-  approved: { border: "border-[#E5DAD0]", bg: "bg-[#FCF9F6]", iconColor: "text-[#49615B]" },
-  rejected: { border: "border-red-200", bg: "bg-red-50", iconColor: "text-red-600" },
-  implemented: { border: "border-[#E5DAD0]", bg: "bg-[#FCF9F6]", iconColor: "text-[#27241E]" },
-  reopened: { border: "border-[#E5DAD0]", bg: "bg-[#FCF9F6]", iconColor: "text-[#6F634F]" },
+const actionStyles: Record<
+  string,
+  { border: string; bg: string; iconColor: string }
+> = {
+  approved: {
+    border: "border-[#E5DAD0]",
+    bg: "bg-[#FCF9F6]",
+    iconColor: "text-[#49615B]",
+  },
+  rejected: {
+    border: "border-red-200",
+    bg: "bg-red-50",
+    iconColor: "text-red-600",
+  },
+  implemented: {
+    border: "border-[#E5DAD0]",
+    bg: "bg-[#FCF9F6]",
+    iconColor: "text-[#27241E]",
+  },
+  reopened: {
+    border: "border-[#E5DAD0]",
+    bg: "bg-[#FCF9F6]",
+    iconColor: "text-[#6F634F]",
+  },
+  commented: {
+    border: "border-[#E5DAD0]",
+    bg: "bg-white",
+    iconColor: "text-[#6F634F]",
+  },
 };
 
 function ActionIcon({ action }: { action: string }) {
@@ -69,6 +107,8 @@ function ActionIcon({ action }: { action: string }) {
   if (action === "rejected") return <XCircle className={`h-4 w-4 ${cls}`} />;
   if (action === "implemented") return <Rocket className={`h-4 w-4 ${cls}`} />;
   if (action === "reopened") return <RotateCcw className={`h-4 w-4 ${cls}`} />;
+  if (action === "commented")
+    return <MessageSquare className={`h-4 w-4 ${cls}`} />;
   return null;
 }
 
@@ -77,6 +117,7 @@ export default function TicketDetailPage() {
   const router = useRouter();
   const params = useParams();
   const [ticket, setTicket] = useState<Ticket | null>(null);
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [actionModal, setActionModal] = useState<string | null>(null);
@@ -90,12 +131,14 @@ export default function TicketDetailPage() {
 
   useEffect(() => {
     if (authStatus === "authenticated" && params.id) {
-      fetch(`/api/tickets/${params.id}`)
-        .then((res) => res.json())
-        .then((data) => {
-          setTicket(data);
-          setLoading(false);
-        });
+      Promise.all([
+        fetch(`/api/tickets/${params.id}`).then((res) => res.json()),
+        fetch(`/api/users`).then((res) => res.json()),
+      ]).then(([t, u]) => {
+        setTicket(t);
+        setUsers(u);
+        setLoading(false);
+      });
     }
   }, [authStatus, params.id]);
 
@@ -107,11 +150,25 @@ export default function TicketDetailPage() {
   async function confirmAction() {
     if (!ticket || !actionModal) return;
     setUpdating(true);
-    const res = await fetch(`/api/tickets/${ticket.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: actionModal, comment: comment.trim() || null }),
-    });
+
+    let res: Response;
+    if (actionModal === "commented") {
+      res = await fetch(`/api/tickets/${ticket.id}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ comment: comment.trim() }),
+      });
+    } else {
+      res = await fetch(`/api/tickets/${ticket.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: actionModal,
+          comment: comment.trim() || null,
+        }),
+      });
+    }
+
     if (res.ok) {
       const updated = await res.json();
       setTicket(updated);
@@ -132,6 +189,7 @@ export default function TicketDetailPage() {
   if (!session || !ticket) return null;
 
   const isAdmin = session.user.role === "admin";
+  const commentRequired = actionModal === "commented";
 
   return (
     <div className="min-h-screen bg-[#FCF9F6]">
@@ -155,7 +213,10 @@ export default function TicketDetailPage() {
           <div className="mb-6 flex items-start justify-between">
             <div>
               <div className="mb-2 flex items-center gap-3">
-                <Badge variant="outline" className="border-[#E5DAD0] text-[#6F634F]">
+                <Badge
+                  variant="outline"
+                  className="border-[#E5DAD0] text-[#6F634F]"
+                >
                   {categoryLabels[ticket.category] || ticket.category}
                 </Badge>
                 <span
@@ -166,54 +227,65 @@ export default function TicketDetailPage() {
               </div>
               <p className="text-sm text-[#BBAC9D]">
                 Submitted on {new Date(ticket.createdAt).toLocaleString()} by{" "}
-                <strong className="text-[#27241E]">{ticket.name}</strong> ({ticket.email})
+                <strong className="text-[#27241E]">{ticket.name}</strong> (
+                {ticket.email})
               </p>
             </div>
 
-            {isAdmin && (
-              <div className="flex gap-2">
-                {ticket.status === "pending" && (
-                  <>
+            <div className="flex flex-wrap justify-end gap-2">
+              <button
+                onClick={() => openActionModal("commented")}
+                disabled={updating}
+                className="flex items-center gap-1.5 rounded-lg border border-[#E5DAD0] bg-white px-4 py-2 text-sm font-medium text-[#27241E] hover:bg-[#FCF9F6] disabled:opacity-50"
+              >
+                <MessageSquare className="h-4 w-4" />
+                Comment
+              </button>
+              {isAdmin && (
+                <>
+                  {ticket.status === "pending" && (
+                    <>
+                      <button
+                        onClick={() => openActionModal("approved")}
+                        disabled={updating}
+                        className="flex items-center gap-1.5 rounded-lg bg-[#49615B] px-4 py-2 text-sm font-medium text-white hover:bg-[#49615B]/90 disabled:opacity-50"
+                      >
+                        <CheckCircle className="h-4 w-4" />
+                        Approve
+                      </button>
+                      <button
+                        onClick={() => openActionModal("rejected")}
+                        disabled={updating}
+                        className="flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
+                      >
+                        <XCircle className="h-4 w-4" />
+                        Reject
+                      </button>
+                    </>
+                  )}
+                  {ticket.status === "approved" && (
                     <button
-                      onClick={() => openActionModal("approved")}
+                      onClick={() => openActionModal("implemented")}
                       disabled={updating}
-                      className="flex items-center gap-1.5 rounded-lg bg-[#49615B] px-4 py-2 text-sm font-medium text-white hover:bg-[#49615B]/90 disabled:opacity-50"
+                      className="flex items-center gap-1.5 rounded-lg bg-[#27241E] px-4 py-2 text-sm font-medium text-[#FCF9F6] hover:bg-[#3E3723] disabled:opacity-50"
                     >
-                      <CheckCircle className="h-4 w-4" />
-                      Approve
+                      <Rocket className="h-4 w-4" />
+                      Mark Implemented
                     </button>
+                  )}
+                  {ticket.status !== "pending" && (
                     <button
-                      onClick={() => openActionModal("rejected")}
+                      onClick={() => openActionModal("pending")}
                       disabled={updating}
-                      className="flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
+                      className="flex items-center gap-1.5 rounded-lg border border-[#E5DAD0] bg-white px-4 py-2 text-sm font-medium text-[#6F634F] hover:bg-[#FCF9F6] disabled:opacity-50"
                     >
-                      <XCircle className="h-4 w-4" />
-                      Reject
+                      <RotateCcw className="h-4 w-4" />
+                      Reopen
                     </button>
-                  </>
-                )}
-                {ticket.status === "approved" && (
-                  <button
-                    onClick={() => openActionModal("implemented")}
-                    disabled={updating}
-                    className="flex items-center gap-1.5 rounded-lg bg-[#27241E] px-4 py-2 text-sm font-medium text-[#FCF9F6] hover:bg-[#3E3723] disabled:opacity-50"
-                  >
-                    <Rocket className="h-4 w-4" />
-                    Mark Implemented
-                  </button>
-                )}
-                {ticket.status !== "pending" && (
-                  <button
-                    onClick={() => openActionModal("pending")}
-                    disabled={updating}
-                    className="flex items-center gap-1.5 rounded-lg border border-[#E5DAD0] bg-white px-4 py-2 text-sm font-medium text-[#6F634F] hover:bg-[#FCF9F6] disabled:opacity-50"
-                  >
-                    <RotateCcw className="h-4 w-4" />
-                    Reopen
-                  </button>
-                )}
-              </div>
-            )}
+                  )}
+                </>
+              )}
+            </div>
           </div>
 
           <div className="space-y-6">
@@ -267,7 +339,7 @@ export default function TicketDetailPage() {
                 </h3>
                 <div className="space-y-3">
                   {ticket.actions.map((a) => {
-                    const style = actionStyles[a.action] || actionStyles.reopened;
+                    const style = actionStyles[a.action] || actionStyles.commented;
                     return (
                       <div
                         key={a.id}
@@ -284,7 +356,7 @@ export default function TicketDetailPage() {
                         </div>
                         {a.comment && (
                           <p className="mt-2 whitespace-pre-wrap text-sm text-[#6F634F]">
-                            {a.comment}
+                            <MentionText text={a.comment} />
                           </p>
                         )}
                       </div>
@@ -304,19 +376,25 @@ export default function TicketDetailPage() {
               {actionLabels[actionModal]}
             </h3>
             <p className="mb-4 text-sm text-[#6F634F]">
-              Add an optional comment for the team.
+              {commentRequired
+                ? "Use @username to tag people."
+                : "Add an optional comment for the team. Use @username to tag people."}
             </p>
-            <textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              rows={4}
-              placeholder={
-                actionModal === "pending"
-                  ? "e.g. Reopening to add more context..."
-                  : "e.g. Approved but with these changes..."
-              }
-              className="mb-4 w-full rounded-lg border border-[#E5DAD0] px-3 py-2 text-sm text-[#27241E] outline-none focus:border-[#49615B] focus:ring-1 focus:ring-[#49615B]"
-            />
+            <div className="mb-4">
+              <MentionTextarea
+                value={comment}
+                onChange={setComment}
+                rows={4}
+                users={users}
+                placeholder={
+                  actionModal === "pending"
+                    ? "e.g. Reopening to add more context @gorka"
+                    : actionModal === "commented"
+                    ? "Write your comment, mention with @username..."
+                    : "e.g. Approved but with these changes @jorge"
+                }
+              />
+            </div>
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setActionModal(null)}
@@ -327,7 +405,7 @@ export default function TicketDetailPage() {
               </button>
               <button
                 onClick={confirmAction}
-                disabled={updating}
+                disabled={updating || (commentRequired && !comment.trim())}
                 className={`flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-white disabled:opacity-50 ${
                   actionModal === "rejected"
                     ? "bg-red-600 hover:bg-red-700"
@@ -335,6 +413,8 @@ export default function TicketDetailPage() {
                     ? "bg-[#27241E] hover:bg-[#3E3723]"
                     : actionModal === "pending"
                     ? "bg-[#6F634F] hover:bg-[#27241E]"
+                    : actionModal === "commented"
+                    ? "bg-[#49615B] hover:bg-[#49615B]/90"
                     : "bg-[#49615B] hover:bg-[#49615B]/90"
                 }`}
               >

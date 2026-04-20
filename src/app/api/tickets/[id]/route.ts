@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { TicketStatus } from "@prisma/client";
+import { recordMentions } from "@/lib/mentions";
 
 export async function GET(
   _req: NextRequest,
@@ -22,6 +23,16 @@ export async function GET(
   if (!ticket) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
+
+  // Mark mentions for this user as read
+  await prisma.ticketMention.updateMany({
+    where: {
+      ticketId: id,
+      mentionedUsername: session.user.name.toLowerCase(),
+      readAt: null,
+    },
+    data: { readAt: new Date() },
+  });
 
   return NextResponse.json(ticket);
 }
@@ -46,20 +57,21 @@ export async function PATCH(
   const userName = session.user.name;
   const actionType = status === "pending" ? "reopened" : status;
 
-  await prisma.$transaction([
-    prisma.ticket.update({
-      where: { id },
-      data: { status },
-    }),
-    prisma.ticketAction.create({
-      data: {
-        ticketId: id,
-        action: actionType,
-        userName,
-        comment: comment || null,
-      },
-    }),
-  ]);
+  await prisma.ticket.update({
+    where: { id },
+    data: { status },
+  });
+
+  const action = await prisma.ticketAction.create({
+    data: {
+      ticketId: id,
+      action: actionType,
+      userName,
+      comment: comment || null,
+    },
+  });
+
+  await recordMentions(action.id, id, comment);
 
   const ticket = await prisma.ticket.findUnique({
     where: { id },

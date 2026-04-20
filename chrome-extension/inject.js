@@ -51,7 +51,6 @@ logoContainer.style.setProperty("padding","8px 0","important")
 }
 document.querySelectorAll('.hl_header').forEach(function(e){e.style.setProperty("background","white","important");e.style.setProperty("border-bottom","1px solid #E5DAD0","important")});
 var copilot=document.getElementById("hl_header--copilot-icon");if(copilot)copilot.style.setProperty("display","none","important");
-var helpBtn=document.getElementById("hl_header--help-icon");if(helpBtn)helpBtn.style.setProperty("display","none","important");
 document.querySelectorAll('.hl_header [class*=changelog]').forEach(function(e){e.style.setProperty("display","none","important")});
 document.querySelectorAll('.dropdown-menu').forEach(function(e){e.style.setProperty("background","white","important");e.style.setProperty("border","1px solid #E5DAD0","important");e.style.setProperty("border-radius","12px","important");e.style.setProperty("box-shadow","0 4px 12px rgba(0,0,0,0.1)","important")});
 document.querySelectorAll('.dropdown-menu *').forEach(function(e){e.style.setProperty("color",textDark,"important");e.style.setProperty("background","transparent","important")});

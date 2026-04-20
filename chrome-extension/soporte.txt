@@ -1,1 +1,16 @@
-document.querySelectorAll('*').forEach(function(e){var r=e.getBoundingClientRect();if(r.left<200&&r.height>1&&r.height<20&&r.width>50&&r.width<200){var bg=getComputedStyle(e).backgroundColor;var bc=getComputedStyle(e).borderBottomColor;if((bg!=='rgba(0, 0, 0, 0)'&&bg!=='transparent'&&bg!=='rgb(252, 249, 246)')||(bc&&bc!=='rgba(0, 0, 0, 0)')){console.log(e.tagName+' | '+e.className.substring(0,50)+' | bg:'+bg+' | bc:'+bc+' | h:'+Math.round(r.height)+'| w:'+Math.round(r.width))}}})
+Hi, I want to know if I can customize the branding of the GHL mobile app (iOS and Android) for my agency, similar to how we can customize the web interface with Custom CSS/JS in Whitelabel.
+
+Specifically I'm interested in:
+1. Custom app icon and name on App Store / Play Store
+2. Custom colors / theme inside the app
+3. Custom logo on login screen
+4. Custom domain for push notifications
+
+Questions:
+1. Is there a "Branded Mobile App" or "Mobile App Whitelabel" feature available?
+2. What plan do I need to enable it?
+3. How long does the publishing process take?
+
+Agency ID: Yl7cVW3UMWDIICX4xgix
+
+Thanks

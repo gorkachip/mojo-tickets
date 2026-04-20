@@ -63,16 +63,31 @@ model Ticket {
 }
 
 model TicketAction {
-  id        String   @id @default(uuid())
-  ticketId  String   @map("ticket_id")
+  id        String           @id @default(uuid())
+  ticketId  String           @map("ticket_id")
   action    String
-  userName  String   @map("user_name")
+  userName  String           @map("user_name")
   comment   String?
-  createdAt DateTime @default(now()) @map("created_at")
-  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  createdAt DateTime         @default(now()) @map("created_at")
+  ticket    Ticket           @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  mentions  TicketMention[]
 
   @@index([ticketId, createdAt])
   @@map("ticket_actions")
+}
+
+model TicketMention {
+  id                String       @id @default(uuid())
+  actionId          String       @map("action_id")
+  ticketId          String       @map("ticket_id")
+  mentionedUsername String       @map("mentioned_username")
+  readAt            DateTime?    @map("read_at")
+  createdAt         DateTime     @default(now()) @map("created_at")
+  action            TicketAction @relation(fields: [actionId], references: [id], onDelete: Cascade)
+
+  @@index([mentionedUsername, readAt, createdAt])
+  @@index([ticketId])
+  @@map("ticket_mentions")
 }
 
 model Upload {
