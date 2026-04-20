@@ -63,16 +63,22 @@ model Ticket {
 }
 
 model TicketAction {
-  id        String           @id @default(uuid())
-  ticketId  String           @map("ticket_id")
-  action    String
-  userName  String           @map("user_name")
-  comment   String?
-  createdAt DateTime         @default(now()) @map("created_at")
-  ticket    Ticket           @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  mentions  TicketMention[]
+  id              String           @id @default(uuid())
+  ticketId        String           @map("ticket_id")
+  parentActionId  String?          @map("parent_action_id")
+  action          String
+  userName        String           @map("user_name")
+  comment         String?
+  resolvedAt      DateTime?        @map("resolved_at")
+  resolvedBy      String?          @map("resolved_by")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  ticket          Ticket           @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  parentAction    TicketAction?    @relation("ActionReplies", fields: [parentActionId], references: [id], onDelete: Cascade)
+  replies         TicketAction[]   @relation("ActionReplies")
+  mentions        TicketMention[]
 
   @@index([ticketId, createdAt])
+  @@index([parentActionId])
   @@map("ticket_actions")
 }
 

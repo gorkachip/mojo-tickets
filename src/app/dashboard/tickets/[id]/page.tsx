@@ -22,6 +22,9 @@ type TicketAction = {
   userName: string;
   comment: string | null;
   createdAt: string;
+  parentActionId: string | null;
+  resolvedAt: string | null;
+  resolvedBy: string | null;
 };
 
 type Ticket = {
@@ -101,6 +104,111 @@ const actionStyles: Record<
   },
 };
 
+function ActionItem({
+  action: a,
+  onReply,
+  onResolve,
+  isReply,
+  isRoot,
+}: {
+  action: TicketAction;
+  onReply: (a: TicketAction) => void;
+  onResolve: (a: TicketAction, reopen: boolean) => void;
+  isReply?: boolean;
+  isRoot?: boolean;
+}) {
+  const style = actionStyles[a.action] || actionStyles.commented;
+  const resolved = !!a.resolvedAt;
+  return (
+    <div
+      className={`group relative rounded-lg border ${style.border} ${style.bg} p-3 ${resolved ? "opacity-60" : ""}`}
+    >
+      <div className="flex items-center gap-2 text-sm">
+        <ActionIcon action={a.action} />
+        <span className="font-medium text-[#27241E]">
+          {actionVerb[a.action] || a.action} by {a.userName}
+        </span>
+        <span className="text-[#BBAC9D]">
+          · {new Date(a.createdAt).toLocaleString()}
+        </span>
+        {resolved && (
+          <span className="rounded-full bg-[#49615B]/15 px-2 py-0.5 text-xs font-medium text-[#49615B]">
+            Resolved
+          </span>
+        )}
+        <div className="ml-auto flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+          <button
+            onClick={() => onReply(a)}
+            className="rounded px-2 py-0.5 text-xs text-[#BBAC9D] hover:bg-[#E5DAD0]/40 hover:text-[#27241E]"
+          >
+            Reply
+          </button>
+          {isRoot && !isReply && (
+            <button
+              onClick={() => onResolve(a, resolved)}
+              className="rounded px-2 py-0.5 text-xs text-[#BBAC9D] hover:bg-[#E5DAD0]/40 hover:text-[#27241E]"
+            >
+              {resolved ? "Reopen thread" : "Resolve"}
+            </button>
+          )}
+        </div>
+      </div>
+      {a.comment && (
+        <p className="mt-2 whitespace-pre-wrap text-sm text-[#6F634F]">
+          <MentionText text={a.comment} />
+        </p>
+      )}
+      {resolved && a.resolvedBy && (
+        <p className="mt-1 text-xs text-[#BBAC9D]">
+          Resolved by {a.resolvedBy} ·{" "}
+          {a.resolvedAt && new Date(a.resolvedAt).toLocaleString()}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function ActionThread({
+  actions,
+  onReply,
+  onResolve,
+}: {
+  actions: TicketAction[];
+  onReply: (a: TicketAction) => void;
+  onResolve: (a: TicketAction, reopen: boolean) => void;
+}) {
+  const top = actions.filter((a) => !a.parentActionId);
+  const childrenOf = (id: string) =>
+    actions
+      .filter((a) => a.parentActionId === id)
+      .sort(
+        (a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+      );
+
+  function renderNode(a: TicketAction, depth: number): React.ReactNode {
+    const replies = childrenOf(a.id);
+    return (
+      <div key={a.id}>
+        <ActionItem
+          action={a}
+          onReply={onReply}
+          onResolve={onResolve}
+          isReply={depth > 0}
+          isRoot={depth === 0}
+        />
+        {replies.length > 0 && (
+          <div className="mt-2 ml-6 space-y-2 border-l-2 border-[#E5DAD0] pl-4">
+            {replies.map((r) => renderNode(r, depth + 1))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return <div className="space-y-3">{top.map((a) => renderNode(a, 0))}</div>;
+}
+
 function ActionIcon({ action }: { action: string }) {
   const cls = actionStyles[action]?.iconColor || "text-[#6F634F]";
   if (action === "approved") return <CheckCircle className={`h-4 w-4 ${cls}`} />;
@@ -121,6 +229,7 @@ export default function TicketDetailPage() {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [actionModal, setActionModal] = useState<string | null>(null);
+  const [replyTo, setReplyTo] = useState<TicketAction | null>(null);
   const [comment, setComment] = useState("");
 
   useEffect(() => {
@@ -144,7 +253,32 @@ export default function TicketDetailPage() {
 
   function openActionModal(action: string) {
     setComment("");
+    setReplyTo(null);
     setActionModal(action);
+  }
+
+  function openReplyModal(action: TicketAction) {
+    setComment("");
+    setReplyTo(action);
+    setActionModal("commented");
+  }
+
+  async function resolveAction(action: TicketAction, reopen: boolean) {
+    if (!ticket) return;
+    setUpdating(true);
+    const res = await fetch(
+      `/api/tickets/${ticket.id}/actions/${action.id}/resolve`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reopen }),
+      },
+    );
+    if (res.ok) {
+      const updated = await res.json();
+      setTicket(updated);
+    }
+    setUpdating(false);
   }
 
   async function confirmAction() {
@@ -156,7 +290,10 @@ export default function TicketDetailPage() {
       res = await fetch(`/api/tickets/${ticket.id}/comments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ comment: comment.trim() }),
+        body: JSON.stringify({
+          comment: comment.trim(),
+          parentActionId: replyTo?.id || null,
+        }),
       });
     } else {
       res = await fetch(`/api/tickets/${ticket.id}`, {
@@ -176,6 +313,7 @@ export default function TicketDetailPage() {
     setUpdating(false);
     setActionModal(null);
     setComment("");
+    setReplyTo(null);
   }
 
   if (authStatus === "loading" || loading) {
@@ -337,32 +475,11 @@ export default function TicketDetailPage() {
                 <h3 className="mb-3 text-sm font-medium text-[#BBAC9D]">
                   Activity log
                 </h3>
-                <div className="space-y-3">
-                  {ticket.actions.map((a) => {
-                    const style = actionStyles[a.action] || actionStyles.commented;
-                    return (
-                      <div
-                        key={a.id}
-                        className={`rounded-lg border ${style.border} ${style.bg} p-3`}
-                      >
-                        <div className="flex items-center gap-2 text-sm">
-                          <ActionIcon action={a.action} />
-                          <span className="font-medium text-[#27241E]">
-                            {actionVerb[a.action] || a.action} by {a.userName}
-                          </span>
-                          <span className="text-[#BBAC9D]">
-                            · {new Date(a.createdAt).toLocaleString()}
-                          </span>
-                        </div>
-                        {a.comment && (
-                          <p className="mt-2 whitespace-pre-wrap text-sm text-[#6F634F]">
-                            <MentionText text={a.comment} />
-                          </p>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
+                <ActionThread
+                  actions={ticket.actions}
+                  onReply={openReplyModal}
+                  onResolve={resolveAction}
+                />
               </div>
             )}
           </div>

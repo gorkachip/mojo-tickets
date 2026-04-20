@@ -17,7 +17,11 @@ export async function GET(
   const { id } = await params;
   const ticket = await prisma.ticket.findUnique({
     where: { id },
-    include: { actions: { orderBy: { createdAt: "asc" } } },
+    include: {
+      actions: {
+        orderBy: { createdAt: "asc" },
+      },
+    },
   });
 
   if (!ticket) {

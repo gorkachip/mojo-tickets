@@ -1,13 +1,16 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const url = new URL(req.url);
+  const showResolved = url.searchParams.get("showResolved") === "true";
 
   const username = session.user.name.toLowerCase();
   const mentions = await prisma.ticketMention.findMany({
@@ -15,6 +18,7 @@ export async function GET() {
     include: {
       action: {
         include: {
+          parentAction: { select: { id: true, resolvedAt: true } },
           ticket: {
             select: {
               id: true,
@@ -28,8 +32,15 @@ export async function GET() {
       },
     },
     orderBy: { createdAt: "desc" },
-    take: 50,
+    take: 100,
   });
 
-  return NextResponse.json(mentions);
+  const filtered = showResolved
+    ? mentions
+    : mentions.filter((m) => {
+        const root = m.action.parentAction || m.action;
+        return !root.resolvedAt;
+      });
+
+  return NextResponse.json(filtered);
 }

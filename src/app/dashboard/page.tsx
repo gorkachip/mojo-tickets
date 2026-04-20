@@ -69,6 +69,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [showResolved, setShowResolved] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -80,14 +81,16 @@ export default function DashboardPage() {
     if (status === "authenticated") {
       Promise.all([
         fetch("/api/tickets").then((res) => res.json()),
-        fetch("/api/mentions").then((res) => res.json()),
+        fetch(`/api/mentions?showResolved=${showResolved}`).then((res) =>
+          res.json(),
+        ),
       ]).then(([t, m]) => {
         setTickets(t);
         setMentions(m);
         setLoading(false);
       });
     }
-  }, [status]);
+  }, [status, showResolved]);
 
   if (status === "loading" || loading) {
     return (
@@ -261,9 +264,20 @@ export default function DashboardPage() {
           </>
         ) : (
           <div>
-            <h2 className="mb-4 text-xl font-bold text-[#27241E]">
-              My mentions ({mentions.length})
-            </h2>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-[#27241E]">
+                My mentions ({mentions.length})
+              </h2>
+              <label className="flex cursor-pointer items-center gap-2 text-sm text-[#6F634F]">
+                <input
+                  type="checkbox"
+                  checked={showResolved}
+                  onChange={(e) => setShowResolved(e.target.checked)}
+                  className="h-4 w-4 rounded border-[#E5DAD0] text-[#49615B] focus:ring-[#49615B]"
+                />
+                Show resolved
+              </label>
+            </div>
             {mentions.length === 0 ? (
               <div className="rounded-xl border border-[#E5DAD0] bg-white p-12 text-center text-[#BBAC9D]">
                 You haven&apos;t been tagged in any tickets yet.

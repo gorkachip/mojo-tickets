@@ -15,7 +15,7 @@ export async function POST(
 
   const { id } = await params;
   const body = await req.json();
-  const { comment } = body;
+  const { comment, parentActionId } = body;
 
   if (!comment || !comment.trim()) {
     return NextResponse.json({ error: "Comment is required" }, { status: 400 });
@@ -26,12 +26,25 @@ export async function POST(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
+  if (parentActionId) {
+    const parent = await prisma.ticketAction.findFirst({
+      where: { id: parentActionId, ticketId: id },
+    });
+    if (!parent) {
+      return NextResponse.json(
+        { error: "Parent action not found" },
+        { status: 400 },
+      );
+    }
+  }
+
   const action = await prisma.ticketAction.create({
     data: {
       ticketId: id,
       action: "commented",
       userName: session.user.name,
       comment: comment.trim(),
+      parentActionId: parentActionId || null,
     },
   });
 
