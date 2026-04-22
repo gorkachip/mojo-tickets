@@ -1,5 +1,5 @@
 <script>
-if((window.location.href.indexOf("location/MAK8IBLaQbsIQI9to8MD")!==-1||window.location.href.indexOf("location%2FMAK8IBLaQbsIQI9to8MD")!==-1)&&!document.getElementById("mojo-ticket-btn")){
+if((window.location.href.indexOf("location/MAK8IBLaQbsIQI9to8MD")!==-1||window.location.href.indexOf("location%2FMAK8IBLaQbsIQI9to8MD")!==-1||window.location.href.indexOf("location/iMCUQozpqGhUSJftqvNe")!==-1||window.location.href.indexOf("location%2FiMCUQozpqGhUSJftqvNe")!==-1)&&!document.getElementById("mojo-ticket-btn")){
 var b=document.createElement("div");
 b.id="mojo-ticket-btn";
 b.style.cssText="position:fixed;bottom:24px;right:24px;width:56px;height:56px;min-width:56px;min-height:56px;max-width:56px;max-height:56px;background:#27241E;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:999999;box-shadow:0 4px 12px rgba(0,0,0,0.3);overflow:hidden;box-sizing:border-box;padding:0";
